@@ -19,14 +19,29 @@ export class InvoiceService {
         return newInvoice;
     }
 
-    async getAllInvoices(): Promise<Invoice[]> {
-        const invoices = this.prisma.invoice.findMany({
+    async getAllInvoices(filters: { startDate?: string; endDate?: string; status?: string }): Promise<Invoice[]> {
+        const { startDate, endDate, status } = filters;
+        const where: any = {};
+
+        if (startDate) {
+            where.date = { gte: new Date(startDate).toISOString() };
+        }
+
+        if (endDate) {
+            where.date = { ...where.date, lte: new Date(endDate).toISOString() };
+        }
+
+        if (status && status !== 'ALL') {
+            where.status = status;
+        }
+
+        const invoices = await this.prisma.invoice.findMany({
             orderBy: { createdAt: 'desc' },
+            where: where,
             include: { files: true }
         });
         return invoices;
     }
-
 
     async getInvoiceById(id: string): Promise<Invoice> {
         const invoice = await this.prisma.invoice.findUnique({

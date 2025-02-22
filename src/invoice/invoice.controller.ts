@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post, Get, Patch, Delete, Param } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Delete, Param, Query } from '@nestjs/common';
 import { InvoiceDto } from './dto/invoice.dto';
 import { InvoiceService } from './invoice.service';
 
@@ -13,8 +13,8 @@ export class InvoiceController {
     }
 
     @Get()
-    async getAllInvoices() {
-        return this.invoiceService.getAllInvoices();
+    async getAllInvoices(@Query() filters: { startDate?: string; endDate?: string; status?: string }) {
+        return this.invoiceService.getAllInvoices(filters);
     }
 
     @Get(':id')
