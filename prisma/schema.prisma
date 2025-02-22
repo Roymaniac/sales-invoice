@@ -18,11 +18,15 @@ model Invoice {
   invoiceNo String   @unique
   customer  String
   amount    Float
+  date      DateTime?
   status    String
   dueDate   DateTime
+  notes     String?
   files     File[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([status, invoiceNo], name: "invoice_index")
 }
 
 model File {
@@ -32,4 +36,6 @@ model File {
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([invoiceID], name: "file_index")
 }
