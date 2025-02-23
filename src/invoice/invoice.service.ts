@@ -23,12 +23,11 @@ export class InvoiceService {
         const { startDate, endDate, status } = filters;
         const where: any = {};
 
-        if (startDate) {
-            where.date = { gte: new Date(startDate).toISOString() };
-        }
-
-        if (endDate) {
-            where.date = { ...where.date, lte: new Date(endDate).toISOString() };
+        if (startDate && endDate) {
+            where.date = {
+                gte: new Date(startDate).toISOString(),
+                lte: new Date(endDate).toISOString()
+            };
         }
 
         if (status && status !== 'ALL') {
@@ -64,5 +63,25 @@ export class InvoiceService {
 
     async deleteInvoice(id: string): Promise<void> {
         await this.prisma.invoice.delete({ where: { id }});
-    }        
+    }
+    
+    async uploadFile(file: Express.Multer.File, invoiceId: string): Promise<any> {
+        try {
+            const updatedInvoice = await this.prisma.invoice.update({
+              where: { id: invoiceId },
+              data: {
+                files: {
+                  create: {
+                    name: `${file.filename}`,
+                    url: `${process.env.APP_URL}/${file.filename}`,
+                  },
+                },
+              },
+              include: { files: true },
+            });
+            return updatedInvoice;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
 }
